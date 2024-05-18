@@ -3,7 +3,7 @@ import streamlit as st
 from datetime import datetime
 import time
 import pandas as pd
-def excel_oku():
+def excel_oku(x):
     # Proje dosyasını oku
     proje_df = pd.read_excel('proje.xlsx')
 
@@ -35,7 +35,7 @@ def excel_oku():
     if not os.path.exists(yoklama_klasoru):
         os.makedirs(yoklama_klasoru)
     # Sonuçları bir metin dosyasına yaz
-    with open(f'{yoklama_klasoru}/{date}_yoklama.txt', 'w',encoding='utf-8') as file:
+    with open(f'{yoklama_klasoru}/{x}_{date}_yoklama.txt', 'w',encoding='utf-8') as file:
         
         for name in matching_names:
             file.write(f"{name['Name']} {name['Surname']}\n")
@@ -45,10 +45,10 @@ def excel_oku():
 date = datetime.now().strftime("%d-%m-%Y")
 
 # txt dosyasını oku ve içeriği listeye aktar
-def read_attendance_list():
+def read_attendance_list(x):
     attendance_list = []
     try:
-        with open(f'yoklamalar/{date}_yoklama.txt', 'r', encoding='utf-8') as file:
+        with open(f'yoklamalar/{x}_{date}_yoklama.txt', 'r', encoding='utf-8') as file:
             for line in file:
                 attendance_list.append(line.strip())
     except FileNotFoundError:
@@ -58,14 +58,9 @@ def read_attendance_list():
 
 # Streamlit web arayüzü
 def main():
-
     ders_adi_input = st.empty()
     ders_adi = ders_adi_input.text_input("Ders adı giriniz:")
-   
-    if ders_adi: 
-        ders_adi_input.write("Başlamak için açılacak excel dosyasında 'Data Streamer' sekmesinden cihazı bağlayın ve veri akışını başlatın")
-        time.sleep(5)
-        os.system(f'start "" "proje.xlsx"')   
+    if ders_adi:    
         ders_adi_input.empty()
         st.title("Yoklama Listesi")
         st.markdown("Onur Alp Gündüz ve Kerim Ayberk Çıtak tarafından yapıldı")
@@ -77,7 +72,7 @@ def main():
         
         
         # Yoklama listesini oku
-        attendance_list = read_attendance_list()
+        attendance_list = read_attendance_list(ders_adi)
         
         # Yoklama listesini göster
         if attendance_list:
@@ -89,9 +84,8 @@ def main():
         
         # Yenileme butonu
         if st.button("Yenilemek için tıklayın"):
-            excel_oku()
-            attendance_list = read_attendance_list()
-        
+            excel_oku(ders_adi)
+            attendance_list = read_attendance_list(ders_adi)
 
 if __name__ == "__main__":
     main()
